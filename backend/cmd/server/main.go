@@ -24,6 +24,7 @@ func main() {
 	db.Init()
 
 	r := gin.Default()
+	r.SetTrustedProxies([]string{"127.0.0.1"})
 	r.Use(gin.Recovery())
 
 	api := r.Group("/api/v1")
