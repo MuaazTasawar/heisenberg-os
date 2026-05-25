@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap');
+
+:root {
+  --black: #0a0a0a;
+  --void: #060606;
+  --panel: #111111;
+  --border: #1e1e1e;
+  --border-hot: #2a2a2a;
+  --gold: #c8a84b;
+  --gold-dim: #8a6f2e;
+  --gold-glow: #e8c56a;
+  --red: #c0392b;
+  --red-dim: #7a1f15;
+  --blue: #2980b9;
+  --green: #1a7a3a;
+  --green-bright: #27ae60;
+  --text: #e8e4d8;
+  --text-dim: #7a7570;
+  --text-muted: #3a3530;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Barlow', sans-serif;
+  font-weight: 400;
+  min-height: 100vh;
+}
+
+::selection { background: var(--gold-dim); color: var(--text); }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); }
