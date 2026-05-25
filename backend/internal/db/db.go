@@ -21,6 +21,7 @@ func Init() {
 	DB.AutoMigrate(
 		&models.User{},
 		&models.Empire{},
+		&models.FrontBusiness{},
 		&models.Transaction{},
 		&models.LegalCase{},
 		&models.DEAThreat{},
