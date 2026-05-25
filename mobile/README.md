@@ -1,16 +1,39 @@
-# mobile
+# Heisenberg OS — Mobile
 
-A new Flutter project.
+Flutter mobile client for the Heisenberg OS empire simulation platform.
 
-## Getting Started
+## Requirements
 
-This project is a starting point for a Flutter application.
+- Flutter SDK 3.x+
+- Dart 3.x+
+- Android Studio / Xcode for emulators
 
-A few resources to get you started if this is your first Flutter project:
+## Setup
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Environment
+
+Update the base URL in `lib/services/api_service.dart`:
+
+- Android emulator: `http://10.0.2.2:8080/api/v1`
+- iOS simulator: `http://localhost:8080/api/v1`
+- Physical device: `http://YOUR_LOCAL_IP:8080/api/v1`
+
+## Screens
+
+- Splash — auth check on launch
+- Login — JWT authentication
+- Dashboard — empire stats overview
+- Cook Lab — batch synthesis controls
+- DEA Status — live threat monitoring
+- Legal — Saul Goodman AI consultation
+
+## Dependencies
+
+- `provider` — state management
+- `http` — API calls
+- `shared_preferences` — token storage
