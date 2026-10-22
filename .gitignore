@@ -1,8 +1,44 @@
+# --- dependencies / virtual environments ---
 node_modules/
+.venv/
+venv/
+
+# --- environment & secrets (templates named .env.example stay tracked) ---
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- build output ---
+build/
+dist/
+.next/
+out/
+backend/bin/
+*.exe
+*.test
+
+# --- tests & coverage ---
+coverage/
+coverage.out
+htmlcov/
+.coverage
+.pytest_cache/
+
+# --- python ---
 __pycache__/
 *.pyc
-venv/
+
+# --- flutter / dart ---
 .dart_tool/
-build/
 *.g.dart
+
+# --- editors, OS, scratch ---
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+*.bak
+*.tsbuildinfo
