@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+*.bak
+*.log
+*.test
+bin
+tmp
+Dockerfile
+.dockerignore

@@ -1,32 +1,47 @@
 package middleware
 
 import (
-	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/heisenberg-os/backend/internal/auth"
+	"github.com/heisenberg-os/backend/internal/config"
+	"github.com/heisenberg-os/backend/pkg/response"
+	"net/http"
 )
 
-func JWTAuth() gin.HandlerFunc {
+// JWTAuth requires a valid token, taken from "Authorization: Bearer ..." (mobile, scripts)
+// or from the httpOnly session cookie (browser). The caller's id is stored in the context
+// as auth.UserIDKey.
+func JWTAuth(cfg *config.Config) gin.HandlerFunc {
+	secret := []byte(cfg.JWTSecret)
 	return func(c *gin.Context) {
-		header := c.GetHeader("Authorization")
-		if header == "" || !strings.HasPrefix(header, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+		token := tokenFromRequest(c)
+		if token == "" {
+			response.Fail(c, http.StatusUnauthorized, "authentication required")
+			c.Abort()
 			return
 		}
-		tokenStr := strings.TrimPrefix(header, "Bearer ")
-		secret := os.Getenv("JWT_SECRET")
-		token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
-			return []byte(secret), nil
-		})
-		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		claims, err := auth.ParseToken(secret, token)
+		if err != nil {
+			response.Fail(c, http.StatusUnauthorized, "invalid or expired token")
+			c.Abort()
 			return
 		}
-		claims := token.Claims.(jwt.MapClaims)
-		c.Set("user_id", uint(claims["user_id"].(float64)))
+		c.Set(auth.UserIDKey, claims.UserID)
 		c.Next()
 	}
+}
+
+func tokenFromRequest(c *gin.Context) string {
+	if header := c.GetHeader("Authorization"); header != "" {
+		if len(header) > 7 && strings.EqualFold(header[:7], "bearer ") {
+			return strings.TrimSpace(header[7:])
+		}
+		return ""
+	}
+	if cookie, err := c.Cookie(auth.CookieName); err == nil {
+		return cookie
+	}
+	return ""
 }
