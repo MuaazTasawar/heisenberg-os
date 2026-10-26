@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -30,7 +31,11 @@ var schemaName = regexp.MustCompile(`^[a-z_][a-z0-9_]{0,62}$`)
 func Open(dsn string) (*gorm.DB, error) {
 	return gorm.Open(postgres.Open(dsn), &gorm.Config{
 		TranslateError: true, // turns unique violations into gorm.ErrDuplicatedKey
-		Logger:         logger.Default.LogMode(logger.Warn),
+		Logger: logger.New(log.New(os.Stderr, "", log.LstdFlags), logger.Config{
+			SlowThreshold:             300 * time.Millisecond,
+			LogLevel:                  logger.Warn,
+			IgnoreRecordNotFoundError: true, // "no such row" is a normal answer, not an error
+		}),
 	})
 }
 

@@ -79,6 +79,15 @@ func testURL(t *testing.T) string {
 	return raw
 }
 
+func closeDB(g *gorm.DB) {
+	if g == nil {
+		return
+	}
+	if sqlDB, err := g.DB(); err == nil {
+		sqlDB.Close()
+	}
+}
+
 func dropSchema(t *testing.T, raw, schema string) {
 	t.Helper()
 	g, err := Open(raw)
@@ -95,8 +104,6 @@ func TestConnectUsesTheConfiguredSchema(t *testing.T) {
 	raw := testURL(t)
 	const schema = "db_connect_test"
 	dropSchema(t, raw, schema)
-	t.Cleanup(func() { DB = nil; dropSchema(t, raw, schema) })
-
 	cfg := config.Defaults()
 	cfg.DatabaseURL = raw
 	cfg.DatabaseSchema = schema
@@ -104,6 +111,7 @@ func TestConnectUsesTheConfiguredSchema(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { closeDB(gdb); DB = nil; dropSchema(t, raw, schema) })
 	if DB != gdb {
 		t.Error("Connect must install the shared connection")
 	}
@@ -136,6 +144,7 @@ func TestMigrateCreatesEveryTableAndIsRepeatable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { closeDB(boot) })
 	if err := EnsureSchema(boot, schema); err != nil {
 		t.Fatal(err)
 	}
@@ -147,6 +156,7 @@ func TestMigrateCreatesEveryTableAndIsRepeatable(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Cleanup(func() { closeDB(gdb) })
 	for i := 0; i < 2; i++ {
 		if err := Migrate(gdb); err != nil {
 			t.Fatalf("migration %d: %v", i+1, err)

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -176,43 +176,53 @@ func TestPasswordHashIsNeverSerialised(t *testing.T) {
 
 // ------------------------------------------------------- database-backed tests
 
-// openTestDB connects to TEST_DATABASE_URL using a private schema, so test packages can run
-// in parallel against one database. The tests are skipped when the variable is not set.
+var (
+	testDBOnce sync.Once
+	testDBErr  error
+)
+
+// openTestDB connects once per test run to TEST_DATABASE_URL in a private schema (one shared
+// pool, so many tests cannot exhaust the server's connections). The tests are skipped when
+// the variable is not set.
 func openTestDB(t *testing.T) {
 	t.Helper()
 	raw := os.Getenv("TEST_DATABASE_URL")
 	if raw == "" {
 		t.Skip("TEST_DATABASE_URL is not set - skipping database tests")
 	}
-	boot, err := db.Open(raw)
-	if err != nil {
-		t.Fatalf("cannot connect to the test database: %v", err)
+	testDBOnce.Do(func() {
+		boot, err := db.Open(raw)
+		if err != nil {
+			testDBErr = err
+			return
+		}
+		if err := db.EnsureSchema(boot, "auth_test"); err != nil {
+			testDBErr = err
+			return
+		}
+		if sqlDB, err := boot.DB(); err == nil {
+			sqlDB.Close()
+		}
+		dsn, err := db.WithSchema(raw, "auth_test")
+		if err != nil {
+			testDBErr = err
+			return
+		}
+		gdb, err := db.Open(dsn)
+		if err != nil {
+			testDBErr = err
+			return
+		}
+		if err := db.Migrate(gdb); err != nil {
+			testDBErr = err
+			return
+		}
+		db.DB = gdb
+	})
+	if testDBErr != nil {
+		t.Fatalf("cannot prepare the test database: %v", testDBErr)
 	}
-	if err := boot.Exec("CREATE SCHEMA IF NOT EXISTS auth_test").Error; err != nil {
-		t.Fatal(err)
-	}
-	if sqlDB, err := boot.DB(); err == nil {
-		sqlDB.Close()
-	}
-
-	u, err := url.Parse(raw)
-	if err != nil {
-		t.Fatal(err)
-	}
-	q := u.Query()
-	q.Set("search_path", "auth_test")
-	u.RawQuery = q.Encode()
-
-	gdb, err := db.Open(u.String())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := db.Migrate(gdb); err != nil {
-		t.Fatal(err)
-	}
-	db.DB = gdb
 }
-
 func unique(prefix string) string { return fmt.Sprintf("%s%d", prefix, time.Now().UnixNano()) }
 
 func newInput(t *testing.T) RegisterInput {

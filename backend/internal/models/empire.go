@@ -13,7 +13,7 @@ type Empire struct {
 	HeatLevel       float64         `json:"heat_level"`
 	HeatUpdatedAt   *time.Time      `json:"heat_updated_at,omitempty"`
 	TerritoryCount  int             `json:"territory_count"`
-	FrontBusinesses []FrontBusiness `json:"front_businesses,omitempty"`
+	FrontBusinesses []FrontBusiness `json:"front_businesses"`
 }
 
 type FrontBusiness struct {
