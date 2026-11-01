@@ -73,7 +73,7 @@ func New(cfg *config.Config) *gin.Engine {
 	empire.RegisterRoutes(protected)
 	dea.RegisterRoutes(protected)
 	laundering.RegisterRoutes(protected)
-	legal.RegisterRoutes(protected.Group("", middleware.RateLimit(cfg.RateLegalPerMin, time.Minute)))
+	legal.RegisterRoutes(protected, middleware.RateLimit(cfg.RateLegalPerMin, time.Minute))
 
 	return r
 }
