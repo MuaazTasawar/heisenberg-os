@@ -65,6 +65,7 @@ func New(cfg *config.Config) *gin.Engine {
 
 	authHandler := auth.NewHandler(cfg)
 	authHandler.Public(api, middleware.RateLimit(cfg.RateAuthPerMin, time.Minute))
+	game.RegisterPublicRoutes(api)
 
 	protected := api.Group("", middleware.JWTAuth(cfg))
 	authHandler.Protected(protected)
