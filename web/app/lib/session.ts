@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { api, isUnauthorized } from "./api";
 import { loginUrl } from "./redirect";
 import { useAuthStore } from "./store";
+import type { LoginInput } from "./types";
 
 export const SESSION_KEY = ["me"] as const;
 
@@ -58,6 +59,21 @@ export function useLogout() {
       queryClient.clear();
       useAuthStore.getState().clear();
       router.replace("/login");
+    },
+  });
+}
+
+/**
+ * Signs in. The server sets the session cookie; this only records who signed in, so the pages
+ * that follow do not have to ask /auth/me again.
+ */
+export function useSignIn() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: LoginInput) => api.auth.login(input),
+    onSuccess: (result) => {
+      useAuthStore.getState().setUser(result.user);
+      queryClient.setQueryData(SESSION_KEY, result.user);
     },
   });
 }
