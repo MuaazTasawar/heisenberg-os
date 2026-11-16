@@ -1,67 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
 import { Banknote, FlaskConical, Scale, ShieldAlert } from "lucide-react";
 import DashboardShell from "../components/DashboardShell";
-import ErrorNotice from "../components/ErrorNotice";
+import GameStateGate from "../components/GameStateGate";
 import Panel from "../components/Panel";
 import RiskBadge from "../components/RiskBadge";
 import StatTile, { type StatTone } from "../components/StatTile";
-import { api } from "../lib/api";
 import { clamp, formatKg, formatMoney, formatNumber, formatPercent, formatRelative, formatScore } from "../lib/format";
 import { activeFronts, describeRules, territoryStatus } from "../lib/rules";
 import { parseRisk, riskColor, riskFromScore } from "../lib/risk";
 import type { GameState } from "../lib/types";
-
-const GAME_STATE_KEY = ["game", "state"] as const;
 
 const HEAT_TONE: Record<string, StatTone> = { low: "good", medium: "gold", high: "danger", critical: "danger" };
 
 export default function DashboardView() {
   return (
     <DashboardShell title="Command center">
-      <GameStateSection />
+      <GameStateGate>{(data) => <Overview data={data} />}</GameStateGate>
     </DashboardShell>
-  );
-}
-
-// Rendered by the shell only once the player is known to be signed in, so nothing is requested before that.
-function GameStateSection() {
-  // Heat cools with time and raids happen on their own, so the picture is refreshed regularly.
-  const state = useQuery({
-    queryKey: GAME_STATE_KEY,
-    queryFn: () => api.game.state(),
-    staleTime: 10_000,
-    refetchInterval: 30_000,
-    refetchOnWindowFocus: true,
-  });
-
-  return (
-    <>
-      {state.isPending && <LoadingTiles />}
-      {state.error && (
-        <ErrorNotice
-          error={state.error}
-          title={state.data ? "Could not refresh - showing the last known numbers" : "Cannot load your empire"}
-          onRetry={() => void state.refetch()}
-        />
-      )}
-      {state.data && <Overview data={state.data} />}
-    </>
-  );
-}
-
-function LoadingTiles() {
-  return (
-    <div className="stat-grid" aria-busy="true" role="status" aria-label="Loading your empire">
-      {Array.from({ length: 8 }, (_, index) => (
-        <div key={index} className="stat">
-          <span className="skeleton skeleton--label" aria-hidden="true" />
-          <span className="skeleton skeleton--value" aria-hidden="true" />
-        </div>
-      ))}
-    </div>
   );
 }
 

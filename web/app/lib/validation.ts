@@ -1,3 +1,4 @@
+import { formatMoney } from "./format";
 import type { RegisterInput } from "./types";
 
 // The same rules as the backend (internal/auth). The server stays the authority: these checks
@@ -84,4 +85,75 @@ export function toRegisterInput(form: RegisterForm): RegisterInput {
     password: form.password,
     ...(alias ? { alias } : {}),
   };
+}
+
+// ------------------------------------------------------------------- the game's own forms
+
+export const FRONT_LIMITS = { nameMin: 2, nameMax: 40 } as const;
+export const CONSULT_LIMITS = { chargeMax: 200, textMax: 2000 } as const;
+
+/** Trims and collapses runs of white space, as the server does with a front's name. */
+export function normalizeName(name: string): string {
+  return name.trim().split(/\s+/).filter(Boolean).join(" ");
+}
+
+/** Keeps an effort inside the range the server allows, to two decimals. */
+export function clampEffort(value: number, range: { min_effort: number; max_effort: number }): number {
+  if (!Number.isFinite(value)) return range.min_effort;
+  return Math.round(Math.min(Math.max(value, range.min_effort), range.max_effort) * 100) / 100;
+}
+
+export type FrontField = "name" | "type";
+
+export function validateFront(input: { name: string; type: string }, validTypes: readonly string[]): FieldErrors<FrontField> {
+  const errors: FieldErrors<FrontField> = {};
+  const name = normalizeName(input.name);
+  const length = runeCount(name);
+  if (!name) errors.name = "Give the front a name.";
+  else if (length < FRONT_LIMITS.nameMin || length > FRONT_LIMITS.nameMax) {
+    errors.name = `The name must be ${FRONT_LIMITS.nameMin}-${FRONT_LIMITS.nameMax} characters.`;
+  } else if (/[\u0000-\u001f\u007f<>]/.test(name)) {
+    errors.name = "The name cannot contain < or > or control characters.";
+  }
+  if (!input.type) errors.type = "Pick a type of business.";
+  else if (!validTypes.includes(input.type)) errors.type = "Pick one of the listed types.";
+  return errors;
+}
+
+/** Reads "$1,234.50" or "1234" as a number of dollars; anything else (including 3 decimals) is null. */
+export function parseAmount(text: string): number | null {
+  const cleaned = text.trim().replace(/^\$/, "").replace(/,/g, "").trim();
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null;
+  const value = Number(cleaned);
+  return Number.isFinite(value) ? value : null;
+}
+
+export type LaunderField = "amount" | "front";
+
+export function validateLaunder(
+  input: { amount: string; frontId: string },
+  limits: { min: number; dirty: number },
+  openFrontIds: readonly number[],
+): FieldErrors<LaunderField> {
+  const errors: FieldErrors<LaunderField> = {};
+  const amount = parseAmount(input.amount);
+  if (amount === null) errors.amount = "Enter an amount in dollars, for example 5000.";
+  else if (amount < limits.min) errors.amount = `The minimum transfer is ${formatMoney(limits.min)}.`;
+  else if (amount > limits.dirty) errors.amount = `You only have ${formatMoney(limits.dirty)} in dirty money.`;
+
+  if (!input.frontId) errors.front = "Choose which front business to use.";
+  else if (!openFrontIds.includes(Number(input.frontId))) errors.front = "Choose one of your open front businesses.";
+  return errors;
+}
+
+export type ConsultField = "charge" | "evidence" | "context";
+
+export function validateConsult(input: { charge: string; evidence: string; context: string }): FieldErrors<ConsultField> {
+  const errors: FieldErrors<ConsultField> = {};
+  const charge = input.charge.trim();
+  if (!charge) errors.charge = "Describe the charge.";
+  else if (runeCount(charge) > CONSULT_LIMITS.chargeMax) errors.charge = `The charge must be at most ${CONSULT_LIMITS.chargeMax} characters.`;
+  if (runeCount(input.evidence.trim()) > CONSULT_LIMITS.textMax) errors.evidence = `The evidence must be at most ${CONSULT_LIMITS.textMax} characters.`;
+  if (runeCount(input.context.trim()) > CONSULT_LIMITS.textMax) errors.context = `Your situation must be at most ${CONSULT_LIMITS.textMax} characters.`;
+  return errors;
 }

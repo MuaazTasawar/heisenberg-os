@@ -228,3 +228,24 @@ a { color: var(--gold); }
   .auth__title { font-size: 2.8rem; }
   .live-stats, .live-stats__list { gap: 24px; }
 }
+
+/* ------------------------------------------------------ shared pieces for the game pages */
+
+.link-button { background: none; border: 0; padding: 0; color: var(--gold); text-decoration: underline; cursor: pointer; font: inherit; }
+.link-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.result { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--green-bright); background: rgba(39, 174, 96, 0.08); border-radius: var(--radius); }
+
+.pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+
+.suspicion { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
+.suspicion__label { font-size: 0.8rem; color: var(--text-dim); }
+
+/* ------------------------------------------------------------------- empire page */
+
+.slider { display: flex; align-items: center; gap: 16px; }
+.slider input[type='range'] { flex: 1; accent-color: var(--gold); }
+.slider__value { min-width: 3.5ch; font-size: 1.4rem; text-align: right; }
+.projection__heat { margin: 4px 0 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.projection { margin-bottom: 14px; min-height: 3.2rem; }
+.projection p { margin-bottom: 6px; }
+.projection__source { font-size: 0.8rem; }
