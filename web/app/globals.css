@@ -249,3 +249,29 @@ a { color: var(--gold); }
 .projection { margin-bottom: 14px; min-height: 3.2rem; }
 .projection p { margin-bottom: 6px; }
 .projection__source { font-size: 0.8rem; }
+
+/* ------------------------------------------------------------------- fronts page */
+
+.front-list { list-style: none; display: flex; flex-direction: column; }
+.front-list__item { display: grid; grid-template-columns: 1fr minmax(160px, 220px) auto; gap: 16px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.front-list__item .notice { grid-column: 1 / -1; margin: 0; }
+.front-list__item--closed { grid-template-columns: 1fr 1fr; }
+.front-list__actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+@media (max-width: 720px) {
+  .front-list__item { grid-template-columns: 1fr; }
+  .front-list__actions { justify-content: flex-start; }
+}
+
+/* ----------------------------------------------------------------- launder page */
+
+.amount-row { display: flex; gap: 8px; }
+.amount-row input { flex: 1; min-width: 0; }
+.preview { margin: 0 0 14px; }
+.preview--warning { padding: 10px 14px; border-left: 3px solid var(--orange); background: rgba(217, 130, 43, 0.08); border-radius: var(--radius); }
+.transfer-result { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.analysis__title { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); font-weight: 500; margin-bottom: 6px; }
+.analysis__patterns { margin: 6px 0 10px 18px; color: var(--text-dim); }
+.checkbox { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-dim); }
+.checkbox input { accent-color: var(--gold); }
+.ledger__reason { display: block; font-size: 0.8rem; }
