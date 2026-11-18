@@ -275,3 +275,27 @@ a { color: var(--gold); }
 .checkbox { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-dim); }
 .checkbox input { accent-color: var(--gold); }
 .ledger__reason { display: block; font-size: 0.8rem; }
+
+/* ---------------------------------------------------------------------- DEA page */
+
+.trend { margin-bottom: 12px; }
+.trend[data-direction='up'] { color: var(--red); }
+.trend[data-direction='down'] { color: var(--green-bright); }
+.history-table { margin-top: 14px; }
+.history-table summary { cursor: pointer; color: var(--gold); }
+.history-table .table-wrap { margin-top: 10px; }
+
+/* -------------------------------------------------------------------- legal page */
+
+.field textarea { resize: vertical; min-height: 5rem; }
+.counter[data-over='true'] { color: var(--red); }
+.case-result { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.case-heading { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.case-heading__charge { overflow-wrap: anywhere; }
+.case-body__title { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); font-weight: 500; margin: 12px 0 4px; }
+.case-body__text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.case-files { list-style: none; display: flex; flex-direction: column; }
+.case-file { border-bottom: 1px solid var(--border); padding: 10px 0; }
+.case-file summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; cursor: pointer; }
+.case-file__charge { font-weight: 500; flex: 1; min-width: 12ch; overflow-wrap: anywhere; }
+.case-file .case-body { padding: 4px 0 8px 0; }
